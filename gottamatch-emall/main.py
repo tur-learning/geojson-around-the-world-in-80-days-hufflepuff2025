@@ -11,6 +11,7 @@ from utils import extract_files, load_data, find_best_matches, save_to_json, sav
 
 zip_file = "geojson_data.zip"
 geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
+extract_files(zip_file, geojson_files, extract_path=".")
 
 extract_files(zip_filename=zip_file, filenames=geojson_files, extract_path=".")
 
@@ -23,8 +24,8 @@ osm_data = load_data(filename="osm_node_way_relation.geojson")
 # HINT: Use the function `extract_files()` to extract the required files.
 # This function returns a list of extracted file paths.
 
-# extracted_files = ...
-# nolli_file, osm_file = extracted_files  # Unpack the extracted file paths
+extracted_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
+nolli_file, osm_file = extracted_files  # Unpack the extracted file paths
 
 ###############################
 # 3) Load the GeoJSON data
@@ -34,8 +35,8 @@ osm_data = load_data(filename="osm_node_way_relation.geojson")
 # - `nolli_data`: Contains the historical map data.
 # - `osm_data`: Contains modern OpenStreetMap features.
 
-# nolli_data = ...
-# osm_data = ...
+nolli_data = load_data(nolli_file)
+osm_data = load_data(osm_file)
 
 ###############################
 # 4) Extract relevant info from Nolli data
@@ -64,8 +65,8 @@ osm_data = load_data(filename="osm_node_way_relation.geojson")
 #   }
 # }
 
-# nolli_relevant_data = {}
-# nolli_features = nolli_data["features"]
+nolli_relevant_data = {}
+nolli_features = nolli_data["features"]
 
 # for feature in nolli_features:
 #     properties = feature.get("properties", {})
