@@ -12,6 +12,11 @@ from utils import extract_files, load_data, find_best_matches, save_to_json, sav
 zip_file = "geojson_data.zip"
 geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 
+extract_files(zip_filename=zip_file, filenames=geojson_files, extract_path=".")
+
+nolli_data = load_data(filename="nolli_points_open.geojson")
+osm_data = load_data(filename="osm_node_way_relation.geojson")
+
 ###############################
 # 2) Extract GeoJSON files
 ###############################
