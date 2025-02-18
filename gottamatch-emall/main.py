@@ -13,11 +13,16 @@ zip_file = "geojson_data.zip"
 geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 extract_files(zip_file, geojson_files, extract_path=".")
 
+extract_files(zip_filename=zip_file, filenames=geojson_files, extract_path=".")
+
+
 ###############################
 # 2) Extract GeoJSON files
 ###############################
 # HINT: Use the function `extract_files()` to extract the required files.
 # This function returns a list of extracted file paths.
+
+nolli_file, osm_file = geojson_files
 
 nolli_file, osm_file = geojson_files
 
@@ -31,6 +36,9 @@ nolli_file, osm_file = geojson_files
 
 nolli_data = load_data(nolli_file)
 osm_data = load_data(osm_file)
+
+nolli_data = load_data(filename="nolli_points_open.geojson")
+osm_data = load_data(filename="osm_node_way_relation.geojson")
 
 ###############################
 # 4) Extract relevant info from Nolli data
@@ -100,7 +108,6 @@ for feature in nolli_features:
 # - Set `threshold=85` (minimum similarity score).
 # - Use `scorer="partial_ratio"` for better matching.
 
-print(f"Searching best match for Nolli names:")
 
 # counter = 0  # To track the number of successful matches
 # for nolli_id, values in nolli_relevant_data.items():
