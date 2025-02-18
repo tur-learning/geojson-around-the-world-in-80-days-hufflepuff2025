@@ -12,6 +12,9 @@ from utils import extract_files, load_data, find_best_matches, save_to_json, sav
 zip_file = "geojson_data.zip"
 geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 
+extract_files(zip_filename=zip_file, filenames=geojson_files, extract_path=".")
+
+
 ###############################
 # 2) Extract GeoJSON files
 ###############################
@@ -20,6 +23,8 @@ geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 
 # extracted_files = ...
 # nolli_file, osm_file = extracted_files  # Unpack the extracted file paths
+
+nolli_file, osm_file = geojson_files
 
 ###############################
 # 3) Load the GeoJSON data
@@ -31,6 +36,9 @@ geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 
 # nolli_data = ...
 # osm_data = ...
+
+nolli_data = load_data(filename="nolli_points_open.geojson")
+osm_data = load_data(filename="osm_node_way_relation.geojson")
 
 ###############################
 # 4) Extract relevant info from Nolli data
@@ -62,6 +70,23 @@ geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 # nolli_relevant_data = {}
 # nolli_features = nolli_data["features"]
 
+nolli_relevant_data = {}
+nolli_features = nolli_data["features"]
+
+for feature in nolli_features:
+    properties = feature.get("properties", {})
+    nolli_id = properties.get("Nolli Number")
+    
+    if nolli_id:
+        nolli_relevant_data[nolli_id] = {
+            "nolli_names": list(filter(None, [
+                properties.get("Nolli Name"),
+                properties.get("Unravelled Name"),
+                properties.get("Modern Name")
+            ])),
+            "nolli_coords": feature.get("geometry", {})
+        }
+
 # for feature in nolli_features:
 #     properties = feature.get("properties", {})
 #     # Extract the Nolli Number as the key
@@ -86,7 +111,6 @@ geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 # - Set `threshold=85` (minimum similarity score).
 # - Use `scorer="partial_ratio"` for better matching.
 
-print(f"Searching best match for Nolli names:")
 
 # counter = 0  # To track the number of successful matches
 # for nolli_id, values in nolli_relevant_data.items():
@@ -99,6 +123,26 @@ print(f"Searching best match for Nolli names:")
 #     # nolli_relevant_data[nolli_id]["match"] = match  # Store the match
 
 # print(f"MATCHED {counter} NOLLI ENTRIES")
+
+print("Searching best match for Nolli names:")
+counter = 0
+osm_features = osm_data["features"]
+
+for nolli_id, values in nolli_relevant_data.items():
+    print(f"\t{nolli_id}\t{values['nolli_names'][0]}")  # Print first name for reference
+    
+    match, j = find_best_matches(
+        search_names=values["nolli_names"],
+        features=osm_features,
+        key_field="name",
+        threshold=85,
+        scorer="partial_ratio"
+    )
+    
+    counter += j  # Update match counter
+    nolli_relevant_data[nolli_id]["match"] = match  # Store the match
+
+print(f"MATCHED {counter} NOLLI ENTRIES")
 
 ###############################
 # 6) Save results as JSON and GeoJSON
@@ -114,7 +158,11 @@ print(f"Searching best match for Nolli names:")
 # save_to_json(...)
 # save_to_geojson(...)
 
+save_to_json(nolli_relevant_data, "matched_nolli_features.json")
+save_to_geojson(nolli_relevant_data, "matched_nolli_features.geojson")
+
 print("Matching complete. Results saved.")
+
 
 ###############################
 # 7) Visualization
