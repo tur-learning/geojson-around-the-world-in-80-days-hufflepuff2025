@@ -22,8 +22,7 @@ extract_files(zip_filename=zip_file, filenames=geojson_files, extract_path=".")
 # HINT: Use the function `extract_files()` to extract the required files.
 # This function returns a list of extracted file paths.
 
-extracted_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
-nolli_file, osm_file = extracted_files  # Unpack the extracted file paths
+nolli_file, osm_file = geojson_files
 
 nolli_file, osm_file = geojson_files
 
@@ -67,9 +66,6 @@ osm_data = load_data(filename="osm_node_way_relation.geojson")
 #       }
 #   }
 # }
-
-nolli_relevant_data = {}
-nolli_features = nolli_data["features"]
 
 nolli_relevant_data = {}
 nolli_features = nolli_data["features"]
@@ -125,7 +121,6 @@ for feature in nolli_features:
 
 # print(f"MATCHED {counter} NOLLI ENTRIES")
 
-print("Searching best match for Nolli names:")
 counter = 0
 osm_features = osm_data["features"]
 
