@@ -24,8 +24,7 @@ osm_data = load_data(filename="osm_node_way_relation.geojson")
 # HINT: Use the function `extract_files()` to extract the required files.
 # This function returns a list of extracted file paths.
 
-extracted_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
-nolli_file, osm_file = extracted_files  # Unpack the extracted file paths
+nolli_file, osm_file = geojson_files
 
 ###############################
 # 3) Load the GeoJSON data
@@ -68,6 +67,20 @@ osm_data = load_data(osm_file)
 nolli_relevant_data = {}
 nolli_features = nolli_data["features"]
 
+for feature in nolli_features:
+    properties = feature.get("properties", {})
+    nolli_id = properties.get("Nolli Number")
+    
+    if nolli_id:
+        nolli_relevant_data[nolli_id] = {
+            "nolli_names": list(filter(None, [
+                properties.get("Nolli Name"),
+                properties.get("Unravelled Name"),
+                properties.get("Modern Name")
+            ])),
+            "nolli_coords": feature.get("geometry", {})
+        }
+
 # for feature in nolli_features:
 #     properties = feature.get("properties", {})
 #     # Extract the Nolli Number as the key
@@ -106,6 +119,25 @@ print(f"Searching best match for Nolli names:")
 
 # print(f"MATCHED {counter} NOLLI ENTRIES")
 
+counter = 0
+osm_features = osm_data["features"]
+
+for nolli_id, values in nolli_relevant_data.items():
+    print(f"\t{nolli_id}\t{values['nolli_names'][0]}")  # Print first name for reference
+    
+    match, j = find_best_matches(
+        search_names=values["nolli_names"],
+        features=osm_features,
+        key_field="name",
+        threshold=85,
+        scorer="partial_ratio"
+    )
+    
+    counter += j  # Update match counter
+    nolli_relevant_data[nolli_id]["match"] = match  # Store the match
+
+print(f"MATCHED {counter} NOLLI ENTRIES")
+
 ###############################
 # 6) Save results as JSON and GeoJSON
 ###############################
@@ -120,7 +152,11 @@ print(f"Searching best match for Nolli names:")
 # save_to_json(...)
 # save_to_geojson(...)
 
-print("Matching complete. Results saved.")
+save_to_json(nolli_relevant_data, "matched_nolli_features.json")
+save_to_geojson(nolli_relevant_data, "matched_nolli_features.geojson")
+
+print("Complete. Results saved.")
+
 
 ###############################
 # 7) Visualization
